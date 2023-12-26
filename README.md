@@ -1,4 +1,4 @@
-# Jungle Queen 
+# Vikings
 
 > version 0.5  
 
