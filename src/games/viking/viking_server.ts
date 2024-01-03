@@ -19,6 +19,7 @@ import { Grid } from "../../libs/engine/slots/utils/grid";
 import { Cloner } from "../../libs/engine/slots/utils/cloner";
 import { UpdateFeature } from "../../libs/engine/slots/features/update_feature";
 import { SlotConditionMath } from "../../libs/engine/slots/models/slot_math_model";
+import { ScatterSymbolCount } from "../../libs/engine/slots/conditions/scatter_symbol_count";
 
 
 export class GameServer extends BaseSlotGame {
@@ -73,7 +74,43 @@ export class GameServer extends BaseSlotGame {
 
     protected executeBuyBonus() {
         let state:SlotSpinState = new SlotSpinState();         
+        const bbAward:any = RandomHelper.GetRandomFromList( this.rng, this.math.collection["BuyBonusAward"]);
+        
+        const condition:SlotConditionMath = new SlotConditionMath();
+        condition.oak = [bbAward.count];
+        condition.symbol = 11;
+
+        const selectedSet:any = RandomHelper.GetRandomFromList( this.rng, this.math.paidReels );
+        state.reelId = selectedSet.id;
+
+        state.stops = CreateStops.StandardStops(this.rng, selectedSet.reels, this.math.info.gridLayout );
+        state.initialGrid = CreateGrid.StandardGrid( selectedSet.reels, state.stops);
+        state.finalGrid = this.replaceRandomSymbol( state.initialGrid);;
+
+        state.wins = EvaluateWins.LineWins( this.math.info, state.finalGrid, this.state.gameStatus.stakeValue );
+        state.win = CalculateWins.AddPays( state.wins );
+
+        let feature = ScatterSymbolCount.checkCondition( this.math.conditions["FreespinTrigger"], state );
+        while( !feature.isActive || state.win.isGreaterThan(0) ){
+            state.stops = CreateStops.StandardStops(this.rng, selectedSet.reels, this.math.info.gridLayout );
+            state.initialGrid = CreateGrid.StandardGrid( selectedSet.reels, state.stops);
+            state.finalGrid = Cloner.CloneGrid( state.initialGrid);
+
+            state.wins = EvaluateWins.LineWins( this.math.info, state.finalGrid, this.state.gameStatus.stakeValue );
+            state.win = CalculateWins.AddPays( state.wins );
+
+            feature = ScatterSymbolCount.checkCondition( this.math.conditions["FreespinTrigger"], state );
+        }
+
+        Triggerer.UpdateFeature(this.state, feature, this.math.actions["FreespinTrigger"]); 
+        Triggerer.UpdateNextAction( this.state, this.math.actions["FreespinTrigger"]);
+
+        state.features = [feature]
+
+        this.state.gameStatus.currentWin = new BigNumber(0);
+        this.state.gameStatus.totalWin = new BigNumber(0);
         this.state.paidSpin = [state];
+
     }
 
     protected executeReSpin() {

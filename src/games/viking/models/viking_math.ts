@@ -160,6 +160,8 @@ export class VikingMath extends PlatformMath {
             { weight :1, id : "2-3-5-15-100" }, 
             { weight :1, id : "2-4-6-16-100" }
         ]
+
+        this.collection["BuyBonusAward"] = [{ weight:950, count:4}, { weight:50, count:5}]
         
     }
 

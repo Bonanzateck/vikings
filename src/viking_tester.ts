@@ -1,9 +1,9 @@
 import { SlotState } from "./libs/engine/slots/models/slot_state_model";
+import { GameServer } from "./games/viking/viking_server";
 import { PlatformSlotTester } from "./libs/platform/tester/platform_slot_tester";
 import { VikingState } from "./games/viking/models/viking_state";
-import { GameServer } from "./games/viking/viking_server";
 
-export class VikingQueenTester extends PlatformSlotTester {
+export class VikingTester extends PlatformSlotTester {
 
     constructor(){
         super();
@@ -14,7 +14,7 @@ export class VikingQueenTester extends PlatformSlotTester {
     protected recordSlotRTP( state:SlotState) {
         super.recordSlotRTP(state);
 
-        // const vikingState :VikingState = state as VikingState
+        const vikingState :VikingState = state as VikingState;
         // if (vikingState.scatterCount >= 4) {
         //     console.log( vikingState.cheatNums);
         // }
@@ -22,6 +22,4 @@ export class VikingQueenTester extends PlatformSlotTester {
     }
 }
 
-
-
-new VikingQueenTester().startTesting( 10000 );
+new VikingTester().startTesting( 1000000 );

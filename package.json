@@ -7,7 +7,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "ts-node --esm src/libs/server/index.ts",
-    "vt": "ts-node --esm src/games/viking/viking_tester.ts",
+    "vt": "ts-node --esm src/viking_tester.ts",
     "start": "ts-node build/index.js",
     "build": "tsc -p ./",
     "n": "nodemon src/libs/server/index.ts"
