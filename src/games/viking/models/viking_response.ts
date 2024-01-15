@@ -5,9 +5,11 @@ import { VikingState } from "./viking_state";
 export class VikingResponseModel extends PlayResponseV2Model {
 
     public scatterCount = 0;
+    public activeReels = [];
 
     constructor( version:string, name:string, math:PlatformMath, state:VikingState ) {
         super( version, name, math, state);
         this.scatterCount = state.scatterCount;
+        this.activeReels = state.activeReels;
     }
 }

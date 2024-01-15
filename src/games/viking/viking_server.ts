@@ -42,7 +42,7 @@ export class GameServer extends BaseSlotGame {
         state.win = CalculateWins.AddPays( state.wins );
 
         const multipliers:any = RandomHelper.GetRandomFromList( this.rng, this.math.collection["multiplies"]);
-        state.multipliers = multipliers.id.split("-");
+        state.multipliers = multipliers.id.split("-").map( v => parseInt(v));
 
         (this.state as VikingState).scatterCount = Grid.FindScatterOffsets( 11, state.initialGrid).length;
 
@@ -50,6 +50,16 @@ export class GameServer extends BaseSlotGame {
         freespin.id = this.math.conditions["FreespinTrigger"].id;
 
         const holdspin:SlotFeaturesState = SpinCondition.WinCondition( this.math.conditions["HoldSpin"]  , state)
+        holdspin.offsets = Symbols.UniqueWinningSymbols( state.wins);
+        const winreels :boolean[] = Symbols.WinningReelsByOffsets( holdspin.offsets, this.math.info.gridLayout );
+        for(let i=0; i<winreels.length; i++) {
+            if (!winreels[i]) {
+                break;
+            }
+            state.multiplier = state.multipliers[i];
+        }
+        (this.state as VikingState).activeReels = winreels;
+
         if (holdspin.isActive) {
             holdspin.offsets = Symbols.UniqueWinningSymbols( state.wins);
             Triggerer.UpdateFeature(this.state, holdspin, this.math.actions["RespinTrigger"]); 
@@ -129,6 +139,7 @@ export class GameServer extends BaseSlotGame {
         state.win = CalculateWins.AddPays( state.wins );
 
         state.multipliers = prevState.multipliers;
+        state.prevMultiplier = prevState.multiplier;
 
         (this.state as VikingState).scatterCount += Grid.FindScatterOffsets( 11, state.initialGrid).length;
 
@@ -141,21 +152,23 @@ export class GameServer extends BaseSlotGame {
         holdspin.id = this.math.conditions["HoldSpin"].id;
 
         holdspin.isActive = state.win.isGreaterThan( new BigNumber(this.state.respin.accumulated) );
+        holdspin.offsets = Symbols.UniqueWinningSymbols( state.wins);
+        const winreels :boolean[] = Symbols.WinningReelsByOffsets( holdspin.offsets, this.math.info.gridLayout );
+        for(let i=0; i<winreels.length; i++) {
+            if (!winreels[i]) {
+                break;
+            }
+            state.multiplier = state.multipliers[i];
+        }
+        (this.state as VikingState).activeReels = winreels;
+
         if (holdspin.isActive) {
-            holdspin.offsets = Symbols.UniqueWinningSymbols( state.wins);
             Triggerer.UpdateFeature(this.state, holdspin, this.math.actions["RespinTrigger"]); 
             Triggerer.UpdateNextAction( this.state, this.math.actions["RespinTrigger"]);
             this.state.respin.accumulated = state.win;
             this.state.gameStatus.currentWin = new BigNumber(0);
             this.state.gameStatus.totalWin = new BigNumber(0);  
         } else { 
-            const winreels :boolean[] = Symbols.WinningReelsByOffsets( prevState.features[0].offsets, this.math.info.gridLayout );
-            for(let i=0; i<winreels.length; i++) {
-                if (!winreels[i]) {
-                    break;
-                }
-                state.multiplier = state.multipliers[i];
-            }
 
             state.win = state.win.multipliedBy( state.multiplier);
             this.state.gameStatus.currentWin = state.win;
@@ -189,11 +202,21 @@ export class GameServer extends BaseSlotGame {
         state.win = CalculateWins.AddPays( state.wins );
 
         const multipliers:any = RandomHelper.GetRandomFromList( this.rng, this.math.collection["multiplies"]);
-        state.multipliers = multipliers.id.split("-");
+        state.multipliers = multipliers.id.split("-").map( v => parseInt(v));
 
         const holdspin:SlotFeaturesState = SpinCondition.WinCondition( this.math.conditions["HoldSpin"]  , state)
+        holdspin.offsets = Symbols.UniqueWinningSymbols( state.wins);
+        const winreels :boolean[] = Symbols.WinningReelsByOffsets( holdspin.offsets, this.math.info.gridLayout );
+        state.multiplier = 0;
+        for(let i=0; i<winreels.length; i++) {
+            if (winreels[i]) {
+                state.multiplier += state.multipliers[i];
+            }
+        }
+        state.multiplier = state.multiplier == 0 ? 1 : state.multiplier;
+        (this.state as VikingState).activeReels = winreels;
+
         if (holdspin.isActive) {
-            holdspin.offsets = Symbols.UniqueWinningSymbols( state.wins);
             Triggerer.UpdateFeature(this.state, holdspin, this.math.actions["FreeRespinTrigger"]); 
             Triggerer.UpdateNextAction( this.state, this.math.actions["FreeRespinTrigger"]);
             this.state.freerespin.accumulated = state.win;
@@ -227,6 +250,7 @@ export class GameServer extends BaseSlotGame {
         state.win = CalculateWins.AddPays( state.wins );
 
         state.multipliers = prevState.multipliers;
+        state.prevMultiplier = prevState.multiplier;
 
         UpdateFeature.updateFreeReSpinCount( this.state);
 
@@ -234,22 +258,23 @@ export class GameServer extends BaseSlotGame {
         holdspin.id = this.math.conditions["HoldSpin"].id;
 
         holdspin.isActive = state.win.isGreaterThan( new BigNumber(this.state.freerespin.accumulated) );
+        holdspin.offsets = Symbols.UniqueWinningSymbols( state.wins);
+        const winreels :boolean[] = Symbols.WinningReelsByOffsets( holdspin.offsets, this.math.info.gridLayout );
+        state.multiplier = 0;
+        for(let i=0; i<winreels.length; i++) {
+            if (winreels[i]) {
+                state.multiplier += state.multipliers[i];
+            }
+        }
+        state.multiplier = state.multiplier == 0 ? 1 : state.multiplier;
+        (this.state as VikingState).activeReels = winreels;
+
         if (holdspin.isActive) {
-            holdspin.offsets = Symbols.UniqueWinningSymbols( state.wins);
             Triggerer.UpdateFeature(this.state, holdspin, this.math.actions["FreeRespinTrigger"]); 
             Triggerer.UpdateNextAction( this.state, this.math.actions["FreeRespinTrigger"]);
             this.state.gameStatus.currentWin = new BigNumber(0); 
             this.state.freerespin.accumulated = state.win;
         } else { 
-            const winreels :boolean[] = Symbols.WinningReelsByOffsets( prevState.features[0].offsets, this.math.info.gridLayout );
-            state.multiplier = 0;
-            for(let i=0; i<winreels.length; i++) {
-                if (winreels[i]) {
-                    state.multiplier += state.multipliers[i];
-                }
-            }
-            state.multiplier = state.multiplier == 0 ? 1 : state.multiplier;
-
             state.win = state.win.multipliedBy( state.multiplier);
             this.state.gameStatus.currentWin = state.win;
             this.state.freerespin.accumulated = new BigNumber(0);
