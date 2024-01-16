@@ -51,7 +51,6 @@ export class VikingMath extends PlatformMath {
                 { name: "LV5", key: "LOW", id: 9, payout: [this.bd(0), this.bd(0), this.bd(0), this.bd(2), this.bd(5), this.bd(20)] },
                 { name: "LV6", key: "LOW", id: 10, payout: [this.bd(0), this.bd(0), this.bd(0), this.bd(2), this.bd(5), this.bd(20)] },
                 { name: "Scatter", key: "SCATTER", id: 11, payout: [] }
-                // { name:"Random", key:"RANDSYM", id:12, payout:[] }
             ]
         };
 
