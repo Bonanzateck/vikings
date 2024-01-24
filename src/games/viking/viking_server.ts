@@ -154,13 +154,14 @@ export class GameServer extends BaseSlotGame {
         holdspin.isActive = state.win.isGreaterThan( new BigNumber(this.state.respin.accumulated) );
         holdspin.offsets = Symbols.UniqueWinningSymbols( state.wins);
         const winreels :boolean[] = Symbols.WinningReelsByOffsets( holdspin.offsets, this.math.info.gridLayout );
+        (this.state as VikingState).activeReels = new Array(5).fill( false);
         for(let i=0; i<winreels.length; i++) {
             if (!winreels[i]) {
                 break;
             }
+            (this.state as VikingState).activeReels[i] = true;
             state.multiplier = state.multipliers[i];
         }
-        (this.state as VikingState).activeReels = winreels;
 
         if (holdspin.isActive) {
             Triggerer.UpdateFeature(this.state, holdspin, this.math.actions["RespinTrigger"]); 
