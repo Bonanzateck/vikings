@@ -5,7 +5,7 @@ import { ResponseModel } from "../../libs/platform/base/response_model";
 import { ConfigResponseV2Model } from "../../libs/platform/slots/responses_v2";
 import BigNumber from "bignumber.js";
 import { VikingMath } from "./models/viking_math";
-import { VikingResponseModel } from "./models/viking_response";
+import { VikingConfigResponseV2Model, VikingResponseModel } from "./models/viking_response";
 import { VikingState } from "./models/viking_state";
 import { RandomHelper } from "../../libs/engine/slots/utils/random";
 import { CreateStops } from "../../libs/engine/slots/actions/create_stops";
@@ -25,7 +25,7 @@ import { ScatterSymbolCount } from "../../libs/engine/slots/conditions/scatter_s
 export class GameServer extends BaseSlotGame {
 
     constructor(){
-        super("Vikinng", "0.2");
+        super("Vikinng", "0.3");
         this.math = new VikingMath();
     }
 
@@ -65,6 +65,7 @@ export class GameServer extends BaseSlotGame {
             Triggerer.UpdateFeature(this.state, holdspin, this.math.actions["RespinTrigger"]); 
             Triggerer.UpdateNextAction( this.state, this.math.actions["RespinTrigger"]);
             this.state.respin.accumulated = state.win;
+            state.win = BigNumber(0);
         } else {
             const freespinContition : SlotConditionMath = this.math.conditions["FreespinTrigger"];
             if ((this.state as VikingState).scatterCount >= freespinContition.minCount ) {
@@ -72,6 +73,11 @@ export class GameServer extends BaseSlotGame {
                 freespin.symbol = freespinContition.symbol;
                 Triggerer.UpdateFeature(this.state, freespin, this.math.actions["FreespinTrigger"]); 
                 Triggerer.UpdateNextAction( this.state, this.math.actions["FreespinTrigger"]);
+
+                const extra = (this.state as VikingState).scatterCount - freespinContition.minCount; 
+                freespin.count += extra*5;  
+                this.state.freespin.total = freespin.count; 
+                this.state.freespin.left = freespin.count; 
             }
         }
 
@@ -114,6 +120,11 @@ export class GameServer extends BaseSlotGame {
 
         Triggerer.UpdateFeature(this.state, feature, this.math.actions["FreespinTrigger"]); 
         Triggerer.UpdateNextAction( this.state, this.math.actions["FreespinTrigger"]);
+
+        const extra = (this.state as VikingState).scatterCount - this.math.conditions["FreespinTrigger"].minCount; 
+        feature.count += extra*5;  
+        this.state.freespin.total = feature.count; 
+        this.state.freespin.left = feature.count; 
 
         state.features = [feature]
 
@@ -169,6 +180,7 @@ export class GameServer extends BaseSlotGame {
             this.state.respin.accumulated = state.win;
             this.state.gameStatus.currentWin = new BigNumber(0);
             this.state.gameStatus.totalWin = new BigNumber(0);  
+            state.win = BigNumber(0);
         } else { 
 
             state.win = state.win.multipliedBy( state.multiplier);
@@ -182,10 +194,15 @@ export class GameServer extends BaseSlotGame {
                 freespin.symbol = freespinContition.symbol;
                 Triggerer.UpdateFeature(this.state, freespin, this.math.actions["FreespinTrigger"]); 
                 Triggerer.UpdateNextAction( this.state, this.math.actions["FreespinTrigger"]);
+
+                const extra = (this.state as VikingState).scatterCount - freespinContition.minCount; 
+                freespin.count += extra*5;  
+                this.state.freespin.total = freespin.count; 
+                this.state.freespin.left = freespin.count; 
             }
         }
 
-        state.features = [holdspin];        
+        state.features = [holdspin, freespin];        
         
         this.state.respins.push([state]);
     }
@@ -221,6 +238,7 @@ export class GameServer extends BaseSlotGame {
             Triggerer.UpdateFeature(this.state, holdspin, this.math.actions["FreeRespinTrigger"]); 
             Triggerer.UpdateNextAction( this.state, this.math.actions["FreeRespinTrigger"]);
             this.state.freerespin.accumulated = state.win;
+            state.win = BigNumber(0);
         } else {
             UpdateFeature.updateFreeSpinCount( this.state);
         }
@@ -275,6 +293,7 @@ export class GameServer extends BaseSlotGame {
             Triggerer.UpdateNextAction( this.state, this.math.actions["FreeRespinTrigger"]);
             this.state.gameStatus.currentWin = new BigNumber(0); 
             this.state.freerespin.accumulated = state.win;
+            state.win = BigNumber(0);
         } else { 
             state.win = state.win.multipliedBy( state.multiplier);
             this.state.gameStatus.currentWin = state.win;
@@ -293,7 +312,7 @@ export class GameServer extends BaseSlotGame {
     }
 
     protected getConfigResponse( response:PlayResponseModel):ResponseModel {
-        return new ConfigResponseV2Model( this.version, this.name, this.math, this.state);
+        return new VikingConfigResponseV2Model( this.version, this.name, this.math, this.state as VikingState);
     }
 
     protected defaultEmptyState():VikingState {
