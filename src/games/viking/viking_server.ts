@@ -25,7 +25,7 @@ import { ScatterSymbolCount } from "../../libs/engine/slots/conditions/scatter_s
 export class GameServer extends BaseSlotGame {
 
     constructor(){
-        super("Vikinng", "0.3");
+        super("Vikinng", "0.4");
         this.math = new VikingMath();
     }
 
@@ -118,6 +118,7 @@ export class GameServer extends BaseSlotGame {
             feature = ScatterSymbolCount.checkCondition( this.math.conditions["FreespinTrigger"], state );
         }
 
+        (this.state as VikingState).scatterCount = Grid.FindScatterOffsets( 11, state.initialGrid).length;
         Triggerer.UpdateFeature(this.state, feature, this.math.actions["FreespinTrigger"]); 
         Triggerer.UpdateNextAction( this.state, this.math.actions["FreespinTrigger"]);
 
