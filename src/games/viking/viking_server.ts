@@ -25,7 +25,7 @@ import { ScatterSymbolCount } from "../../libs/engine/slots/conditions/scatter_s
 export class GameServer extends BaseSlotGame {
 
     constructor(){
-        super("Vikinng", "0.4");
+        super("Vikinng", "0.5");
         this.math = new VikingMath();
     }
 
@@ -101,7 +101,7 @@ export class GameServer extends BaseSlotGame {
 
         state.stops = CreateStops.StandardStops(this.rng, selectedSet.reels, this.math.info.gridLayout );
         state.initialGrid = CreateGrid.StandardGrid( selectedSet.reels, state.stops);
-        state.finalGrid = this.replaceRandomSymbol( state.initialGrid);;
+        state.finalGrid = this.replaceRandomSymbol( state.initialGrid);
 
         state.wins = EvaluateWins.LineWins( this.math.info, state.finalGrid, this.state.gameStatus.stakeValue );
         state.win = CalculateWins.AddPays( state.wins );
@@ -110,7 +110,7 @@ export class GameServer extends BaseSlotGame {
         while( !feature.isActive || state.win.isGreaterThan(0) ){
             state.stops = CreateStops.StandardStops(this.rng, selectedSet.reels, this.math.info.gridLayout );
             state.initialGrid = CreateGrid.StandardGrid( selectedSet.reels, state.stops);
-            state.finalGrid = Cloner.CloneGrid( state.initialGrid);
+            state.finalGrid = this.replaceRandomSymbol( state.initialGrid);
 
             state.wins = EvaluateWins.LineWins( this.math.info, state.finalGrid, this.state.gameStatus.stakeValue );
             state.win = CalculateWins.AddPays( state.wins );
