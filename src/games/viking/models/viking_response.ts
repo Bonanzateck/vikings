@@ -9,7 +9,7 @@ export class VikingResponseModel extends PlayResponseV2Model {
 
     constructor( version:string, name:string, math:PlatformMath, state:VikingState ) {
         super( version, name, math, state);
-        this.scatterCount = state.scatterCount;
+        this.scatterCount = state.scatterCount; 
         this.activeReels = state.activeReels;
     }
 }

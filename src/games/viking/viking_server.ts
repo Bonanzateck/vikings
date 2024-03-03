@@ -25,7 +25,7 @@ import { ScatterSymbolCount } from "../../libs/engine/slots/conditions/scatter_s
 export class GameServer extends BaseSlotGame {
 
     constructor(){
-        super("Vikinng", "0.5");
+        super("Vikinng", "0.6");
         this.math = new VikingMath();
     }
 
@@ -118,12 +118,6 @@ export class GameServer extends BaseSlotGame {
             feature = ScatterSymbolCount.checkCondition( this.math.conditions["FreespinTrigger"], state );
         }
 
-        // Newly added 
-        const multipliers:any = RandomHelper.GetRandomFromList( this.rng, this.math.collection["multiplies"]);
-        state.multipliers = multipliers.id.split("-").map( v => parseInt(v));
-        (this.state as VikingState).activeReels = [false, false, false, false, false]; 
-        
-
         (this.state as VikingState).scatterCount = Grid.FindScatterOffsets( 11, state.initialGrid).length;
         Triggerer.UpdateFeature(this.state, feature, this.math.actions["FreespinTrigger"]); 
         Triggerer.UpdateNextAction( this.state, this.math.actions["FreespinTrigger"]);
@@ -208,6 +202,8 @@ export class GameServer extends BaseSlotGame {
                 this.state.freespin.left = freespin.count; 
             }
         }
+
+        holdspin.isActive = true;
 
         state.features = [holdspin, freespin];        
         
@@ -310,6 +306,7 @@ export class GameServer extends BaseSlotGame {
             UpdateFeature.updateFreeSpinCount( this.state);
         }
 
+        holdspin.isActive = true;
         state.features = [holdspin];  
         this.state.freerespins.push([state]);
     }
