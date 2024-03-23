@@ -25,7 +25,7 @@ import { ScatterSymbolCount } from "../../libs/engine/slots/conditions/scatter_s
 export class GameServer extends BaseSlotGame {
 
     constructor(){
-        super("Vikinng", "0.7");
+        super("Vikinng", "0.9");
         this.math = new VikingMath();
     }
 
@@ -334,10 +334,16 @@ export class GameServer extends BaseSlotGame {
         if (reel1Offsets.length > 0) {
             const randomSymbols = [];
             newGrid[1].forEach( symbol => {
-                if ( symbol !== 11 && symbol !== 12 ) {
+                if ( symbol !== 11 && symbol !== 12 && symbol !== 0 ) {
                     randomSymbols.push( { weight : 1, symbol : symbol } );
                 }
             })
+            if ( randomSymbols.length == 0 ) {
+                const symbols = [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+                symbols.forEach( symbol => {
+                    randomSymbols.push( { weight : 1, symbol : symbol })
+                })
+            }
             const symbol :any = RandomHelper.GetRandomFromList( this.rng, randomSymbols);
             newGrid = Grid.ReplaceSymbolsInOffsets( reel1Offsets, newGrid, symbol.symbol);
         }
@@ -346,7 +352,7 @@ export class GameServer extends BaseSlotGame {
         if (reel23Offsets.length > 0) {
             const randomSymbols = [];
             newGrid[0].forEach( symbol => {
-                if ( symbol !== 11 && symbol !== 12 ) {
+                if ( symbol !== 11 && symbol !== 12 && symbol !== 0) {
                     randomSymbols.push( { weight : 1, symbol : symbol } );
                 }
             })
