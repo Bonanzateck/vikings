@@ -25,7 +25,7 @@ import { ScatterSymbolCount } from "../../libs/engine/slots/conditions/scatter_s
 export class GameServer extends BaseSlotGame {
 
     constructor(){
-        super("Vikinng", "0.9");
+        super("Vikinng", "0.10");
         this.math = new VikingMath();
     }
 
@@ -217,7 +217,8 @@ export class GameServer extends BaseSlotGame {
     protected executeFreeSpin() {
         let state:SlotSpinState = new SlotSpinState();
 
-        const selectedSet:any = RandomHelper.GetRandomFromList( this.rng, this.math.freeReels );
+        const selectedSet = this.state.buybonus?.isBonusSpin ? this.math.freeReels[1] : this.math.freeReels[0];
+        // const selectedSet:any = RandomHelper.GetRandomFromList( this.rng, this.math.freeReels );
         state.reelId = selectedSet.id;
         state.stops = CreateStops.StandardStops(this.rng, selectedSet.reels, this.math.info.gridLayout );
         state.initialGrid = CreateGrid.StandardGrid( selectedSet.reels, state.stops);
@@ -265,7 +266,9 @@ export class GameServer extends BaseSlotGame {
 
         let state:SlotSpinState = new SlotSpinState();
 
-        const selectedSet:any = RandomHelper.GetRandomFromList( this.rng, this.math.freeReSpinReels );
+        //const selectedSet:any = RandomHelper.GetRandomFromList( this.rng, this.math.freeReSpinReels );
+        const selectedSet = this.state.buybonus?.isBonusSpin ? this.math.freeReSpinReels[1] : this.math.freeReSpinReels[0];
+
         state.reelId = selectedSet.id;
         state.stops = CreateStops.StandardStops(this.rng, selectedSet.reels, this.math.info.gridLayout );
         state.initialGrid = CreateGrid.StandardGrid( selectedSet.reels, state.stops);
